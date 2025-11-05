@@ -1,67 +1,56 @@
-const DBConnection = require('../Config/DBConnection');
+const { Category } = require('../models');
 
+// Get all categories
 const GetCategoryData = async () => {
-    try {
-      const [Category] = await DBConnection.query('CALL GetCategories();');
-      console.log(Category);
-      return Category;  // Return the data instead of res.json
-    } catch (error) {
-      console.log(error);
-      throw new Error('Internal Server Error');  // Throw error, handle it in the controller
-    }
-  };
-  
-  const GetCategoryDataById = async (id) => {
-    try {
-      const [Category] = await DBConnection.query('CALL GetCategoryId(?);', [Number(id)]);
-      console.log(Category);
-      return Category;  // Return data
-    } catch (error) {
-      console.log(error);
-      throw new Error('Internal Server Error');
-    }
-  };
-  
-  const AddCategoryData = async (CategoryName) => {
-    try {
-      const [result] = await DBConnection.query('CALL AddCategory(?);', [CategoryName]);
-      return { message: 'Category added successfully', result };  // Return result
-    } catch (error) {
-      console.log(error);
-      throw new Error('Internal Server Error');
-    }
-  };
-  
+  try {
+    const categories = await Category.findAll();
+    return categories;
+  } catch (error) {
+    console.log(error);
+    throw new Error('Internal Server Error');
+  }
+};
 
-  const UpdateCategoryData = async (CategoryName, CategoryId) => {
-    try {
-      await DBConnection.query('CALL UpdateCategory(?, ?);', [CategoryId, CategoryName]);
-      return { message: 'Category updated successfully' };  // Return success message
-    } catch (error) {
-      console.log(error);
-      throw new Error('Internal Server Error');
-    }
-  };
-  
+// Get category by ID
+const GetCategoryDataById = async (id) => {
+  try {
+    const category = await Category.findByPk(id);
+    return category;
+  } catch (error) {
+    console.log(error);
+    throw new Error('Internal Server Error');
+  }
+};
 
-  const DeleteCategoryData = async (id) => {
-    try {
-      const [categoryExists] = await DBConnection.query('SELECT * FROM products WHERE CategoryId = ?', [id]);
-      if (categoryExists.length === 0) {
-        await DBConnection.query('CALL DeleteCategory(?);', [id]);
-        return { message: 'Category deleted successfully' };  // Return success message
-      }
-      return { error: 'Cannot Delete Category' };  // Return error message if cannot delete
-    } catch (error) {
-      console.log(error);
-      throw new Error('Internal Server Error');
+const UpsertCategory = async (categoryData) => {
+  try {
+    if (categoryData.id) {
+      // Check if category exists
+      const category = await Category.findByPk(categoryData.id);
+      if (!category) return { error: 'Category not found' };
+      // Update existing category
+      await category.update({
+        name: categoryData.name !== undefined ? categoryData.name : category.name,
+        is_active: categoryData.is_active !== undefined ? categoryData.is_active : category.is_active
+      });
+      return { message: 'Category updated successfully' };
+    } else {
+      // Insert new category
+      const result = await Category.create({ 
+        name: categoryData.name, 
+        is_active: categoryData.is_active !== undefined ? categoryData.is_active : true 
+      });
+      return { message: 'Category added successfully', result };
     }
-  };
-module.exports= {
-    GetCategoryData,
-    AddCategoryData,
-    UpdateCategoryData,
-    DeleteCategoryData,
-    GetCategoryDataById
+  } catch (error) {
+    console.log(error);
+    throw new Error('Internal Server Error');
+  }
+};
 
+
+module.exports = {
+  GetCategoryData,
+  UpsertCategory,
+  GetCategoryDataById
 }

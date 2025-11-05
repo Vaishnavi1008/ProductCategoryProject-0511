@@ -1,16 +1,14 @@
-const mysql = require('mysql2/promise');
-require('dotenv').config();
+const { Sequelize } = require('sequelize');
 
-console.log(process.env.DB_HOST,process.env.DB_USER,process.env.DB_PASSWORD,process.env.DB_NAME);
+const sequelize = new Sequelize(
+  process.env.DB_NAME || 'product_db',
+  process.env.DB_USER || 'root',
+  process.env.DB_PASSWORD || '',
+  {
+    host: process.env.DB_HOST || 'localhost',
+    dialect: 'mysql',
+    logging: false,
+  }
+);
 
-const DataBaseConnection   = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password:process.env.DB_PASSWORD, 
-    database:process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10, 
-});
-
-
-module.exports=DataBaseConnection;
+module.exports = sequelize;

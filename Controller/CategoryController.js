@@ -1,68 +1,71 @@
 const {
   GetCategoryData,
   GetCategoryDataById,
-  AddCategoryData,
-  UpdateCategoryData,
-  DeleteCategoryData,
+  UpsertCategory
 } = require("../Service/CategoryService");
 
 const GetCategory = async (req, res) => {
-    try {
-      const categories = await GetCategoryData();  // Call service function
-      return res.json(categories);  // Send response here
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+  try {
+    const categories = await GetCategoryData();
+    return res.json({ data: categories });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const GetCategoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const categoryById = await GetCategoryDataById(id);
+    if (!categoryById) {
+      return res.status(404).json({ error: 'Category not found' });
     }
-  };
-  
-  const GetCategoryById = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const categoryById = await GetCategoryDataById(id);
-      return res.json(categoryById);  // Send the category data as response
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+    return res.json({ data: categoryById });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const UpsertCategoryController = async (req, res) => {
+  try {
+    const { id, name, is_active } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: 'Name is required' });
     }
-  };
-  
-  const InsertCategory = async (req, res) => {
-    try {
-      const { CategoryName } = req.body;
-      const result = await AddCategoryData(CategoryName);  // Call service to add category
-      return res.json(result);  // Send response with success message
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+    const result = await UpsertCategory({
+      id,
+      name,
+      is_active: is_active !== undefined ? is_active : true
+    });
+    if (result.error) {
+      return res.status(404).json(result);
     }
-  };
-  
-  const UpdateCategory = async (req, res) => {
-    try {
-      const { CategoryName } = req.body;
-      const { id } = req.params;
-      const result = await UpdateCategoryData(CategoryName, id);  // Call service to update category
-      return res.json(result);  // Send response with success message
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+    return res.json(result);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const DeactivateCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await UpsertCategory({ id, is_active: false });
+    if (result.error) {
+      return res.status(404).json(result);
     }
-  };
-  const DeleteCategory = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const result = await DeleteCategoryData(id);  // Call service to delete category
-      return res.json(result);  // Send response with success or error message
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
+    return res.json({ message: 'Category deactivated successfully' });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 module.exports = {
   GetCategory,
-  InsertCategory,
-  UpdateCategory,
-  DeleteCategory,
+  UpsertCategoryController,
+  DeactivateCategory,
   GetCategoryById,
 };

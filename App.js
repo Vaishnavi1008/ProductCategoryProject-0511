@@ -3,18 +3,16 @@ const sql = require('mssql');
 const cors = require('cors');
 const app=express();
 const {route}=require('./Route/routes')
-
+const { syncModels } = require('./models'); 
 app.use(express.json())
 app.use(cors({
-  origin: 'http://localhost:3000' // Allow requests from this origin
+  origin: 'http://localhost:3000' 
 }));
+
+syncModels();
 
 
 app.use('/api',route);
-
-
-
-
 
 
 
