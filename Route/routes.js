@@ -12,7 +12,7 @@ const {
 } = require('../Controller/CategoryController');
 const {
     GetProducts,
-    UpsertProduct,
+    UpsertProductC,
     DeactivateProduct,
     GetProductDetailsById,
     BulkUploadProducts
@@ -26,8 +26,8 @@ route.get('/GetCategory', GetCategory); // Get all categories
 route.get('/GetCategoryById/:id', GetCategoryById); // Get a category by ID
 
 // Product Routes
-route.post('/AddProduct', UpsertProduct); // Add new product
-route.put('/EditProduct/:id', UpsertProduct); // Edit a product
+route.post('/AddProduct', UpsertProductC); // Add new product
+route.put('/EditProduct/:id', UpsertProductC); // Edit a product
 route.delete('/RemoveProduct/:id', DeactivateProduct); // Delete a product
 route.get('/GetProducts', GetProducts); // Get all products
 route.get('/GetProductById/:id', GetProductDetailsById); // Get a product by ID

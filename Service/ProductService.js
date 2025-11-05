@@ -1,8 +1,9 @@
 const { Product, Category } = require('../models');
 const { Op } = require('sequelize');
-const GetProductData = async (searchKeyword = '', sortOrder = 'ASC', page = 1, pageSize = 10) => {
+const GetProductData = async (searchKeyword, sortOrder, page = 1, pageSize = 10) => {
     try {
          const where = {};
+         console.log(searchKeyword,'searchKeyword');
     if (searchKeyword) {
       where.name = { [Op.like]: `%${searchKeyword}%` };
     }
@@ -11,7 +12,7 @@ const GetProductData = async (searchKeyword = '', sortOrder = 'ASC', page = 1, p
     if (searchKeyword) {
       include.push({
         model: Category,
-        where: { name: { [Op.like]: `%${searchKeyword}%` } },
+    //    where: { name: { [Op.like]: `%${searchKeyword}%` } },
         attributes: ['id', 'name'],
       });
     } else {
@@ -99,8 +100,7 @@ const UpsertProduct = async (productData) => {
 module.exports = {
     GetProductData,
     GetProductById,
-    InsertProduct,
-    UpdateProduct,
-    DeleteProduct,
+    UpsertProduct,
+    
     BulkInsertProducts,
 };

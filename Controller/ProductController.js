@@ -1,9 +1,7 @@
 const {
     GetProductData,
     GetProductById,
-    InsertProduct,
-    UpdateProduct,
-    DeleteProduct,
+    UpsertProduct,
     BulkInsertProducts
 } = require("../Service/ProductService");
 
@@ -11,13 +9,12 @@ const {
 const GetProducts = async (req, res) => {
     try {
         const {
-            searchKeyword = '',
-            sortOrder = 'ASC',
+            searchKeyword,
+            sortOrder,
             page = 1,
             pageSize = 10,
-            categoryName = ''
-        } = req.query;
-        const products = await GetProductData(searchKeyword, sortOrder, page, pageSize, categoryName);
+        } = req.body;
+        const products = await GetProductData(searchKeyword, sortOrder, page, pageSize);
         return res.json({ data: products });
     } catch (error) {
         console.log(error);
@@ -36,9 +33,10 @@ const GetProductDetailsById = async (req, res) => {
     }
 };
 
-const UpsertProduct = async (req, res) => {
+const UpsertProductC = async (req, res) => {
     try {
         const { id, name, image, price, categoryId, is_active } = req.body;
+        console.log(req.body,'req.body');
         if (!name || !price || !categoryId) {
             return res.status(400).json({ error: 'Name, price, and categoryId are required' });
         }
@@ -90,7 +88,7 @@ const BulkUploadProducts = async (req, res) => {
 module.exports = {
     GetProducts,
     GetProductDetailsById,
-   UpsertProduct,
+   UpsertProductC,
     BulkUploadProducts,
     DeactivateProduct
 };

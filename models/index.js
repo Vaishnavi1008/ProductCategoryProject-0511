@@ -1,7 +1,7 @@
 
 const Product = require('./Product');
 const Category = require('./Category');
-const user = require('./User');
+const User = require('./User');
 
 
 Category.hasMany(Product, { foreignKey: 'categoryId' });
@@ -14,4 +14,4 @@ async function syncModels() {
   console.log('Database & tables created!');
 }
 
-module.exports = { Product, Category, user, syncModels };
+module.exports = { Product, Category, User, syncModels };

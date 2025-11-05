@@ -13,22 +13,25 @@ const LoginInsert = async (req, res) => {
 
     const passwordEncrypted = await bcrypt.hash(password, saltRounds);
 
-    let user;
+    let users;
     if (id) {
       // Update existing user
-      user = await User.findByPk(id);
-      if (!user) {
+      users = await User.findByPk(id);
+      if (!users) {
         return res.status(404).json({ message: "User not found" });
       }
-      await user.update({
+      await User.update({
         email,
-        encryptedPassword: passwordEncrypted,
+        password: passwordEncrypted,
+      }, {
+        where: { id }
       });
     } else {
+      console.log(passwordEncrypted,'passwordEncrypted')
       // Create new user
       user = await User.create({
         email,
-        encryptedPassword: passwordEncrypted,
+        password: passwordEncrypted,
         
       });
     }
@@ -59,14 +62,15 @@ const LoginGetByEmail = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.encryptedPassword);
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log(isMatch,'isMatch')
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
     const token = jwt.sign(
       { id: user.id, email: user.email },
-      process.env.AccessToken_SecretKey,
+      process.env.AccessToken_SecretKey || 'default_secret_key',
       { expiresIn: '1h' }
     );
 
